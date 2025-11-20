@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+
+    <script src="https://unpkg.com/deck.gl@latest/dist.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.5.0/mapbox-gl.css" rel="stylesheet"/>
+
+    <!-- THIS FILE IS REQUIRED -->
+    <script src="https://unpkg.com/streamlit-component-lib/dist/index.js"></script>
+  </head>
+
+  <body>
+    <div id="deck-container" style="width:100%; height:100vh;"></div>
+
+    <script>
+      let deckObj = null;
+
+      function onRender(event) {
+        const payload = event.detail;
+
+        const deckJSON = payload.deck_json;
+        const send = payload.send; // callback to Python
+
+        if (deckObj) {
+          deckObj.finalize();
+        }
+
+        deckObj = new deck.DeckGL({
+          ...deckJSON,
+          container: "deck-container",
+
+          onClick: info => {
+            if (info && info.object) {
+              send({
+                event: "node_click",
+                data: info.object
+              });
+            }
+          }
+        });
+      }
+
+      // Register event listener for Streamlit component updates
+      document.addEventListener("streamlit:render", onRender);
+
+      // Notify Streamlit that component is ready
+      window.parent.postMessage({ type: "streamlit:componentReady" }, "*");
+    </script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+/.env
+/media
+/data
+/cleanup.sh
+/strava_runs.csv
+/animations/media
+/archive
+/cache
